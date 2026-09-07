@@ -3,250 +3,425 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Input Jawaban Sumatif IPS</title>
+  <title>Penilaian Sumatif IPS Kelas 9</title>
   <style>
-    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
-    body { background-color: #f4f6f9; margin: 0; padding: 15px; color: #333; }
-    .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    h2, h3 { color: #1e3c72; text-align: center; margin-bottom: 5px; }
-    .petunjuk { background: #eef5ff; border-left: 4px solid #1e3c72; padding: 12px; font-size: 14px; margin-bottom: 20px; border-radius: 4px; }
-    .form-group { margin-bottom: 15px; }
-    label { font-weight: bold; display: block; margin-bottom: 5px; }
-    select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
-    .soal-card { background: #fafafa; border: 1px solid #e0e0e0; padding: 12px; border-radius: 8px; margin-bottom: 12px; }
-    .soal-title { font-weight: bold; margin-bottom: 8px; color: #444; }
-    .options-row { display: flex; gap: 10px; }
-    .btn-submit { width: 100%; background: #1e3c72; color: #fff; padding: 12px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-    .btn-submit:disabled { background: #888; cursor: not-allowed; }
+    :root {
+      --primary: #1e3a8a;
+      --secondary: #3b82f6;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 12px;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: var(--card);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      font-size: 1.25rem;
+      color: var(--primary);
+      text-align: center;
+      margin-top: 0;
+    }
+    .instructions {
+      background: #eff6ff;
+      border-left: 4px solid var(--secondary);
+      padding: 10px 14px;
+      font-size: 0.875rem;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 5px;
+    }
+    input[type="text"], select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 1rem;
+    }
+    button {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background: #94a3b8;
+    }
+    .question-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 15px;
+      background: #fafafa;
+    }
+    .question-title {
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+    .options-grid {
+      display: flex;
+      gap: 10px;
+    }
+    .options-grid label {
+      flex: 1;
+      text-align: center;
+      background: #fff;
+      border: 1px solid #cbd5e1;
+      padding: 8px;
+      border-radius: 6px;
+      font-weight: normal;
+      cursor: pointer;
+    }
+    .options-grid input {
+      display: none;
+    }
+    .options-grid input:checked + span {
+      font-weight: bold;
+      color: var(--primary);
+    }
+    .options-grid label:has(input:checked) {
+      border-color: var(--primary);
+      background: #dbeafe;
+    }
+    .sub-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px dashed #e2e8f0;
+    }
+    .checkbox-group label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: normal;
+      margin-right: 12px;
+    }
     .hidden { display: none; }
-    .user-card { background: #e8f4ea; border: 1px solid #2e7d32; padding: 12px; border-radius: 8px; margin-bottom: 15px; }
-    .error-card { background: #ffebee; border: 1px solid #c62828; color: #c62828; padding: 15px; border-radius: 8px; text-align: center; }
+    .alert {
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      margin-bottom: 15px;
+    }
+    .alert-error { background: #fee2e2; color: #991b1b; }
+    .alert-success { background: #dcfce7; color: #166534; }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h2>Penilaian Sumatif IPS Kelas 9</h2>
-  <p style="text-align: center; color: #666; margin-top: 0;">Tahun Pelajaran 2026/2027</p>
+  <h1>Penilaian Sumatif IPS Kelas 9</h1>
+  <p style="text-align:center; font-size: 0.85rem; color: #64748b; margin-top:-10px;">Tahun Pelajaran 2026/2027</p>
 
-  <!-- PEMBERITAHUAN JIKA BELUM LOGIN DI WEB UTAMA -->
-  <div id="noAuthBox" class="error-card hidden">
-    ⚠️ <strong>Sesi Login Tidak Ditemukan!</strong><br><br>
-    Kamu belum login di Aplikasi Utama. Silakan kembali dan login terlebih dahulu di Web IPS.
+  <div class="instructions">
+    Lihat soal di LKS <strong>Halaman 55</strong> untuk Bab 1 dan <strong>Halaman 62</strong> untuk Sumatif Tengah Semester. Kerjakan di buku, lalu input jawabannya di bawah ini.
   </div>
 
-  <!-- AREA UJIAN (OTOMATIS MUNCUL JIKA SUDAH LOGIN DI WEB UTAMA) -->
-  <div id="examSection" class="hidden">
-    <div class="user-card">
-      📌 <strong>Identitas Murid (Otomatis):</strong><br>
-      Nama: <span id="dispNama">-</span> | Kelas: <span id="dispKelas">-</span> | ID/NIS: <span id="dispId">-</span>
-    </div>
+  <div id="alertBox" class="alert hidden"></div>
 
-    <div class="petunjuk">
-      <strong>Petunjuk Pengerjaan:</strong><br>
-      Lihat soal di LKS halaman 55 untuk <em>Penilaian Sumatif Bab 1</em> dan halaman 62 untuk <em>Sumatif Tengah Semester</em>.
+  <!-- TAHAP 1: VERIFIKASI SISWA -->
+  <div id="stepAuth">
+    <div class="form-group">
+      <label>Kode Kelas & Absen (Contoh: 9A01)</label>
+      <input type="text" id="inputKode" placeholder="Masukkan Kode..." style="text-transform:uppercase">
+    </div>
+    <div class="form-group">
+      <label>Nama Lengkap</label>
+      <input type="text" id="inputNama" placeholder="Masukkan Nama Lengkap...">
+    </div>
+    <button onclick="verifikasiSiswa()">Verifikasi & Lanjut</button>
+  </div>
+
+  <!-- TAHAP 2: PILIH KATEGORI & ISI JAWABAN -->
+  <div id="stepForm" class="hidden">
+    <div style="background:#f1f5f9; padding:10px; border-radius:6px; margin-bottom:15px; font-size:0.9rem;">
+      <strong>Siswa:</strong> <span id="dispNama"></span> (<span id="dispKode"></span>)
     </div>
 
     <div class="form-group">
-      <label>Pilih Tugas / Ujian</label>
-      <select id="paket" onchange="generateForm()">
-        <option value="">-- Pilih Paket Ujian --</option>
-        <option value="bab1">Penilaian Sumatif BAB 1 (LKS Hal 55)</option>
-        <option value="pts">Sumatif Tengah Semester (LKS Hal 62)</option>
+      <label>Pilih Kategori Ujian</label>
+      <select id="selectKategori" onchange="renderSoal()">
+        <option value="">-- Pilih --</option>
+        <option value="bab1">Penilaian Sumatif BAB 1</option>
+        <option value="sts">Sumatif Tengah Semester</option>
       </select>
     </div>
 
-    <div id="lembarJawaban" class="hidden">
-      <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ccc;">
-      <h3>Pilihan Ganda</h3>
-      <div id="containerPG"></div>
+    <form id="quizForm"></form>
 
-      <h3>Pilihan Ganda Kompleks</h3>
-      <div id="containerPGK"></div>
+    <button id="btnSubmit" class="hidden" onclick="kirimJawaban()">Kirim Jawaban</button>
+  </div>
 
-      <button type="button" id="btnSubmit" class="btn-submit" onclick="kirimJawaban()">Kirim Jawaban</button>
-    </div>
+  <!-- TAHAP 3: SELESAI -->
+  <div id="stepDone" class="hidden" style="text-align:center; padding: 20px 0;">
+    <h2 style="color:var(--primary);">Jawaban Terkirim!</h2>
+    <p>Terima kasih, jawaban kamu telah berhasil dicatat oleh sistem.</p>
+    <button onclick="location.reload()">Selesai / Kembali</button>
   </div>
 </div>
 
 <script>
-  const GAS_URL = "https://script.google.com/macros/s/AKfycbzf0cTV9hR2g774ExSooOQOVuLb-tJ3AyOS1tNEimbAREHm4lc0HnrpKlgk2wMgLnPQEg/exec";
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzf0cTV9hR2g774ExSooOQOVuLb-tJ3AyOS1tNEimbAREHm4lc0HnrpKlgk2wMgLnPQEg/exec";
 
-  let currentMurid = null;
+  // DATA SISWA
+  const rawSiswa = "9A01AIDA FAKHIRAH SHAKILA9A02AINA NAILATUL CHUSNA9A03ALVIA ULFA TSANIA9A04ANANDA NAURA ALTHOFUNNISA9A05AUFA DILA FAKHRUN9A06AYLA TSABITA KHALIS9A07CHAYRA NADHIFA AZMI9A08CORDELIA RAKSHANDRINA GUNAWAN9A09FAUZIYAH PUTRI NURLIASARI9A10GHANIYA NAJLA SALIMA9A11INAYAH HABIBATY9A12JANEETA WIDYA AZZAHRA9A13JESSICA DWI PUTRI SEPTIANI9A14JIHAN AFIYAH SALSABILA9A15KAYLA HUMAIRA9A16MAHESTRI ALMIRA NURRACHMADIO9A17MALVA HASNA KAMILA9A18MITHALINA ARDINI ARTHA VIDYA9A19NABILA ADITIYA OKTAVIANI9A20NADHIRA PUTRI PRAMUDYA9A21NADIRA FAKHRUN NISA9A22QIRANNI RAMADHANIA PUTRI9A23QUEENSHA ALMIRA SHAVANA9A24RUBY ARRUMAISHA9A25SHERA CHARMELLITTANIA NAZMAH9A26TALITA NAZHIRA SAKHI9A27TSALITSA NURSYIFA9A28VANIA CANTIKA AURELLIA9A29VANIA CARISSA SALSABILA9B01ARSYA RISMAWATI9B02ASZMA PUTRI APRLILIA9B03AZZALEA GHAISANI QAIREEN9B04BIANCA PUTRI PRATIWI9B05DHAFIRA ALIMA MAULIDA9B06FATHYA NADIRA PRABAWA9B07FERISYA QATRUNNADA9B08GHAISANI YASMIN AZZALFA9B09IQLIMA LATIFAH AZZAHRA9B10JIHAN MAULIDA TAUFIQ9B11JINGGA IMELDA PUTRI9B12MIKAYLA APRILIA9B13NADIYA MAHYANI NUGRAYASA9B14NAIA ALODIA JULIE ISMAIL9B15NAISYA AINAYYA NUR ICHSAN9B16NAYA SYIFAURAHMAH9B17NAYLA ANANDITA NUGROHO9B18SHAQUILA AZKADINA LESMANA9B19TAZKIA NABILA APRILIANI9B20TIWI HERLINA9B21TRIZA MULYANI LUBIS9B22WIDYA PUTRI PITASARI9B23WINOLA LILIANI WIJAYA9B24ZAHRA FITRIA RISTIYANI9C01AL AZRHAN BRILLIANT9C02ALIF DARMAWAN9C03CHAILAN AZHAR RIU DEMAND9C04DALFA ILHAM PUTRA9C05FAZLY AQILLA MUHAMMAD9C06FAZRI DZIKRI PRATAMA9C07IBNU JAMAL HAMBALAH9C08IKHSAN FADHILAH FAJAR9C09KAMIL AHSAN EL - JUNDI9C10KYNAN NASRI ABIMANYU WIRACAHYA9C11M. FAEYZA HABIBI SANTANA9C12M. NUGI ANUGRAH9C13M. RIDO DARMA ALAM9C14MESHACH ADLIAN NASUTION9C15MOCH. AKMAL FAWZY RIZQILLAH9C16MOCH. RAKHA LUTHFI SACHIO9C17MOCHAMAD SHAEFUL FADHILAH9C18MUHAMMAD ALVIN NIZAR9C19MUHAMMAD GUNTUR MULYADI9C20MUHAMMAD IHSAN MAULANA9C21MUHAMMAD RAFFY9C22MUHAMMAD REZKY KOMARA9C23MUHAMMAD SYAHY HAIDAR9C24MUHAMMAD ZAHRAN FADILLAH9C25MUHAMMAD ZEIN AZ - ZAHRAN9C26NAFFIIS AFLAH UGAHARI9C27RAFA FADILAH KUSWARI9C28RAFA RIZKY RUDIANA9C29RAJASA RIDHO RAHMANU9C30RAKA HANAFI ROYANI9C31RIFQI HERMAWAN9C32RIZQI FARIDZ KUSUMA SAPUTRA9C33WILDAN YASIR BUDIMAN9C34ZAIB NAUFAL GAVIN9D01ABEL ORION BUSTAMAR9D02AKHTAR NURUL AKHYAR9D03AL KEANZA KARISA HIDAYAT9D04AZKA RIZKY PRATAMA9D05CAESAR QIANO AL-AKASYAH M9D06DIMAS SYAHPUTRA9D07EVAN FADHILAH PUTRA9D08FADHLAN FAKHREZA9D09FAEYZA MUHAMMAD DZULQARNAIN9D10FERIES ARFA PERMANA9D11HANIF ABDUTSTSAKIB SYA'BANI9D12IBRA MALDINI PUTRA PAMUNGKAS9D13KAHFI ERANSYAH FADILAH9D14LAKSITO AHMAD ARRYADI9D15M AZKA RAIHAN9D16M. ARKAN ALBAARI PERMANA9D17M. FAREL ALMUNAWAR9D18MUHAMAD RAFANDRA AQLAN LAZUARDI9D19MUHAMMAD FAWWAZ RUZAIN9D20MUHAMMAD KHAIRIL FAHMI9D21MUHAMMAD RAYHAN ALIFA9D22MUHAMMAD RIZKY SALAM9D23MUHAMMAD SIDIQ ALVANZA FRIATNA9D24NAKLA RASYID AZZAHIDI9D25NIZAR ATHAR RAYENDRA9D26RAFKA ALFARIZKY MUNANDAR9D27RAFLI ADITYA RAHMAN9D28RAIHAN ARSYA REGIEZA SUPRIADI9D29RIFQI ARIZDIANSYAH9D30RIFQI AZIZ BATRISYA9D31WAFI KHALIS SANTIKA9D32YOFIE OKTA ADRIANS9D33ZHAFRAN HADYAN HERMAWAN";
 
-  // OTOMATIS BACA DATA LOGIN SAAT HALAMAN DIBUKA
-  document.addEventListener("DOMContentLoaded", function() {
-    const nama = localStorage.getItem("userIPS_nama");
-    const kelas = localStorage.getItem("userIPS_kelas");
-    const idMurid = localStorage.getItem("userIPS_id");
-
-    if (nama && kelas) {
-      currentMurid = { nama: nama, kelas: kelas, idMurid: idMurid || "-" };
-      
-      // Tampilkan identitas
-      document.getElementById("dispNama").innerText = currentMurid.nama;
-      document.getElementById("dispKelas").innerText = currentMurid.kelas;
-      document.getElementById("dispId").innerText = currentMurid.idMurid;
-
-      // Buka akses lembar ujian
-      document.getElementById("examSection").classList.remove("hidden");
-    } else {
-      // Tampilkan error jika belum login di web utama
-      document.getElementById("noAuthBox").classList.remove("hidden");
-    }
-  });
-
-  const CONFIG = {
-    "bab1": {
-      totalPG: 30,
-      pgK: [
-        { type: "checkbox", options: ["A","B","C","D"] },
-        { type: "tf", labels: ["Pernyataan 1", "Pernyataan 2", "Pernyataan 3", "Pernyataan 4"], options: ["Salah","Benar"] },
-        { type: "checkbox", options: ["A","B","C","D"] },
-        { type: "tf", labels: ["Pernyataan 1", "Pernyataan 2", "Pernyataan 3", "Pernyataan 4"], options: ["Sesuai","Tidak Sesuai"] },
-        { type: "checkbox", options: ["A","B","C","D"] },
-        { type: "tf", labels: ["Pernyataan 1", "Pernyataan 2", "Pernyataan 3", "Pernyataan 4"], options: ["Sesuai","Tidak Sesuai"] },
-        { type: "tf", labels: ["Pernyataan 1", "Pernyataan 2", "Pernyataan 3", "Pernyataan 4"], options: ["Salah","Benar"] },
-        { type: "checkbox", options: ["A","B","C","D"] },
-        { type: "checkbox", options: ["A","B","C","D"] },
-        { type: "tf", labels: ["Pernyataan 1", "Pernyataan 2", "Pernyataan 3", "Pernyataan 4"], options: ["Salah","Benar"] }
-      ]
-    },
-    "pts": {
-      totalPG: 35,
-      pgK: [
-        { type: "checkbox", options: ["A","B","C","D"] },
-        { type: "tf", labels: ["Pernyataan 1", "Pernyataan 2", "Pernyataan 3", "Pernyataan 4"], options: ["Benar","Salah"] },
-        { type: "checkbox", options: ["A","B","C","D"] },
-        { type: "checkbox", options: ["A","B","C","D"] },
-        { type: "tf", labels: ["Pernyataan 1", "Pernyataan 2", "Pernyataan 3", "Pernyataan 4"], options: ["Sesuai","Tidak Sesuai"] },
-        { type: "checkbox", options: ["A","B","C","D"] },
-        { type: "checkbox", options: ["A","B","C","D"] },
-        { type: "tf", labels: ["Pernyataan 1", "Pernyataan 2", "Pernyataan 3", "Pernyataan 4"], options: ["Salah","Benar"] },
-        { type: "checkbox", options: ["A","B","C","D"] },
-        { type: "checkbox", options: ["A","B","C","D"] }
-      ]
-    }
-  };
-
-  function generateForm() {
-    const paket = document.getElementById("paket").value;
-    const containerPG = document.getElementById("containerPG");
-    const containerPGK = document.getElementById("containerPGK");
-    const lembarJawaban = document.getElementById("lembarJawaban");
-
-    containerPG.innerHTML = "";
-    containerPGK.innerHTML = "";
-
-    if (!paket) {
-      lembarJawaban.classList.add("hidden");
-      return;
-    }
-
-    lembarJawaban.classList.remove("hidden");
-    const cfg = CONFIG[paket];
-
-    for (let i = 1; i <= cfg.totalPG; i++) {
-      let div = document.createElement("div");
-      div.className = "soal-card";
-      div.innerHTML = `
-        <div class="soal-title">Soal PG No. ${i}</div>
-        <div class="options-row">
-          ${['A','B','C','D'].map(opt => `
-            <label><input type="radio" name="pg_${i}" value="${opt}"> ${opt}</label>
-          `).join('')}
-        </div>
-      `;
-      containerPG.appendChild(div);
-    }
-
-    cfg.pgK.forEach((item, idx) => {
-      let noSoal = idx + 1;
-      let div = document.createElement("div");
-      div.className = "soal-card";
-      let html = `<div class="soal-title">Soal PG Kompleks No. ${noSoal}</div>`;
-
-      if (item.type === "checkbox") {
-        html += `<div class="options-row">
-          ${item.options.map(opt => `
-            <label><input type="checkbox" name="pgk_${noSoal}" value="${opt}"> ${opt}</label>
-          `).join('')}
-        </div>`;
-      } else if (item.type === "tf") {
-        html += item.labels.map((lbl, lIdx) => `
-          <div style="margin-bottom: 8px; font-size: 13px;">
-            <span>${lbl}: </span>
-            ${item.options.map(opt => `
-              <label style="margin-right: 10px;"><input type="radio" name="pgk_${noSoal}_sub_${lIdx}" value="${opt}"> ${opt}</label>
-            `).join('')}
-          </div>
-        `).join('');
-      }
-
-      div.innerHTML = html;
-      containerPGK.appendChild(div);
+  // PARSING DATA SISWA
+  const dbSiswa = {};
+  const matches = rawSiswa.match(/9[A-D]\d{2}[^9]+/g);
+  if (matches) {
+    matches.forEach(item => {
+      const kode = item.substring(0, 4);
+      const nama = item.substring(4).trim();
+      dbSiswa[kode] = nama;
     });
   }
 
-  function kirimJawaban() {
-    const paket = document.getElementById("paket").value;
-    const btnSubmit = document.getElementById("btnSubmit");
+  // KUNCI JAWABAN & STRUKTUR SOAL
+  const keyBab1 = {
+    pg: "DACBCDBBBBAADACCACDCCADBDDCBCBD".split(""),
+    complex: [
+      { type: "multi", keys: ["A","C","D"] },
+      { type: "bool4", keys: ["Salah","Salah","Benar","Benar"] },
+      { type: "multi", keys: ["A","C"] },
+      { type: "bool4", keys: ["Sesuai","Tidak sesuai","Sesuai","Tidak sesuai"] },
+      { type: "multi", keys: ["B","C","D"] },
+      { type: "bool4", keys: ["Tidak sesuai","Tidak sesuai","Sesuai","Sesuai"] },
+      { type: "bool4", keys: ["Salah","Benar","Benar","Salah"] },
+      { type: "multi", keys: ["A","B"] },
+      { type: "multi", keys: ["B","C"] },
+      { type: "bool4", keys: ["Salah","Benar","Salah","Benar"] }
+    ]
+  };
 
-    if (!paket) {
-      alert("Harap pilih paket ujian!");
+  const keySts = {
+    pg: "ACDDBBDBAABCDADBADDBBCCADBBCADACCBA".split(""),
+    complex: [
+      { type: "multi", keys: ["C","D"] },
+      { type: "bool4", keys: ["Benar","Benar","Benar","Salah"] },
+      { type: "multi", keys: ["B","C","D"] },
+      { type: "multi", keys: ["A","B"] },
+      { type: "bool4", keys: ["Tidak sesuai","Sesuai","Tidak sesuai","Tidak sesuai"] },
+      { type: "multi", keys: ["B","C"] },
+      { type: "multi", keys: ["A","C"] },
+      { type: "bool4", keys: ["Salah","Salah","Benar","Benar"] },
+      { type: "multi", keys: ["B","C"] },
+      { type: "multi", keys: ["C","D"] }
+    ]
+  };
+
+  let activeUser = null;
+
+  function showAlert(msg, type = "error") {
+    const el = document.getElementById("alertBox");
+    el.className = `alert alert-${type}`;
+    el.innerText = msg;
+    el.classList.remove("hidden");
+  }
+
+  function hideAlert() {
+    document.getElementById("alertBox").classList.add("hidden");
+  }
+
+  function verifikasiSiswa() {
+    hideAlert();
+    const kode = document.getElementById("inputKode").value.trim().toUpperCase();
+    const nama = document.getElementById("inputNama").value.trim().toUpperCase();
+
+    if (!kode || !nama) return showAlert("Lengkapi Kode dan Nama!");
+
+    if (dbSiswa[kode] && dbSiswa[kode].toUpperCase() === nama) {
+      activeUser = { kode, nama: dbSiswa[kode] };
+      document.getElementById("stepAuth").classList.add("hidden");
+      document.getElementById("stepForm").classList.remove("hidden");
+      document.getElementById("dispNama").innerText = activeUser.nama;
+      document.getElementById("dispKode").innerText = activeUser.kode;
+    } else {
+      showAlert("Kode Kelas / Nama Lengkap tidak cocok dengan data!");
+    }
+  }
+
+  function renderSoal() {
+    const kat = document.getElementById("selectKategori").value;
+    const form = document.getElementById("quizForm");
+    const btn = document.getElementById("btnSubmit");
+    form.innerHTML = "";
+
+    if (!kat) {
+      btn.classList.add("hidden");
       return;
     }
 
-    const cfg = CONFIG[paket];
-    let jawabanPG = [];
-    let jawabanPGK = [];
+    const data = (kat === "bab1") ? keyBab1 : keySts;
 
-    for (let i = 1; i <= cfg.totalPG; i++) {
-      let selected = document.querySelector(`input[name="pg_${i}"]:checked`);
-      jawabanPG.push(selected ? selected.value : "");
-    }
+    // RENDER PG
+    let html = `<h3>Bagian I: Pilihan Ganda</h3>`;
+    data.pg.forEach((_, idx) => {
+      const qNum = idx + 1;
+      html += `
+        <div class="question-card">
+          <div class="question-title">Soal PG No. ${qNum}</div>
+          <div class="options-grid">
+            ${['A','B','C','D'].map(opt => `
+              <label>
+                <input type="radio" name="pg_${qNum}" value="${opt}">
+                <span>${opt}</span>
+              </label>
+            `).join('')}
+          </div>
+        </div>`;
+    });
 
-    cfg.pgK.forEach((item, idx) => {
-      let noSoal = idx + 1;
-      if (item.type === "checkbox") {
-        let selected = Array.from(document.querySelectorAll(`input[name="pgk_${noSoal}"]:checked`)).map(el => el.value);
-        jawabanPGK.push(selected);
-      } else if (item.type === "tf") {
-        let subRes = [];
-        item.labels.forEach((_, lIdx) => {
-          let selected = document.querySelector(`input[name="pgk_${noSoal}_sub_${lIdx}"]:checked`);
-          if (selected) subRes.push(selected.value);
-        });
-        jawabanPGK.push(subRes);
+    // RENDER COMPLEX
+    html += `<h3 style="margin-top:30px;">Bagian II: Pilihan Ganda Kompleks</h3>`;
+    data.complex.forEach((item, idx) => {
+      const qNum = idx + 1;
+      if (item.type === "multi") {
+        html += `
+          <div class="question-card">
+            <div class="question-title">Soal Kompleks No. ${qNum} (Pilih Opsi yang Benar)</div>
+            <div class="checkbox-group">
+              ${['A','B','C','D'].map(opt => `
+                <label><input type="checkbox" name="cx_${qNum}" value="${opt}"> Pilihan ${opt}</label>
+              `).join('')}
+            </div>
+          </div>`;
+      } else {
+        const labels = (item.keys[0] === "Sesuai" || item.keys[0] === "Tidak sesuai") 
+                       ? ["Sesuai", "Tidak sesuai"] 
+                       : ["Benar", "Salah"];
+        html += `
+          <div class="question-card">
+            <div class="question-title">Soal Kompleks No. ${qNum}</div>
+            ${[1, 2, 3, 4].map(sub => `
+              <div class="sub-item">
+                <span>Pernyataan ${sub}</span>
+                <div class="options-grid" style="width: auto;">
+                  <label><input type="radio" name="cx_${qNum}_${sub}" value="${labels[0]}"> <span>${labels[0]}</span></label>
+                  <label><input type="radio" name="cx_${qNum}_${sub}" value="${labels[1]}"> <span>${labels[1]}</span></label>
+                </div>
+              </div>
+            `).join('')}
+          </div>`;
       }
     });
 
+    form.innerHTML = html;
+    btn.classList.remove("hidden");
+  }
+
+  function hitungNilai(kat) {
+    const data = (kat === "bab1") ? keyBab1 : keySts;
+    let skorDiperoleh = 0;
+
+    // PG (Benar x 2 Poin)
+    const totalPgPoin = data.pg.length * 2;
+    data.pg.forEach((key, idx) => {
+      const selected = document.querySelector(`input[name="pg_${idx + 1}"]:checked`);
+      if (selected && selected.value === key) {
+        skorDiperoleh += 2;
+      }
+    });
+
+    // Complex (Per Item Benar = 1 Poin)
+    let totalComplexPoin = 0;
+    data.complex.forEach((item, idx) => {
+      const qNum = idx + 1;
+      if (item.type === "multi") {
+        totalComplexPoin += 4;
+        const selected = Array.from(document.querySelectorAll(`input[name="cx_${qNum}"]:checked`)).map(el => el.value);
+        ['A','B','C','D'].forEach(opt => {
+          const isKey = item.keys.includes(opt);
+          const isChosen = selected.includes(opt);
+          if ((isKey && isChosen) || (!isKey && !isChosen)) {
+            skorDiperoleh += 1;
+          }
+        });
+      } else {
+        totalComplexPoin += 4;
+        [1, 2, 3, 4].forEach(sub => {
+          const selected = document.querySelector(`input[name="cx_${qNum}_${sub}"]:checked`);
+          if (selected && selected.value.toLowerCase() === item.keys[sub - 1].toLowerCase()) {
+            skorDiperoleh += 1;
+          }
+        });
+      }
+    });
+
+    const maxSkor = totalPgPoin + totalComplexPoin;
+    return Math.round((skorDiperoleh / maxSkor) * 100);
+  }
+
+  async function kirimJawaban() {
+    hideAlert();
+    const kat = document.getElementById("selectKategori").value;
+    if (!kat) return showAlert("Pilih kategori terlebih dahulu!");
+
+    const nilaiFinal = hitungNilai(kat);
+    const labelKategori = (kat === "bab1") ? "Penilaian sumatif BAB 1" : "Sumatif tengah semester";
+
     const payload = {
-      idMurid: currentMurid.idMurid,
-      kelas: currentMurid.kelas,
-      paket: paket,
-      jawabanPG: jawabanPG,
-      jawabanPGK: jawabanPGK
+      idMurid: activeUser.kode,
+      hasil: [
+        {
+          kategori: labelKategori,
+          nilai: nilaiFinal
+        }
+      ]
     };
 
-    btnSubmit.disabled = true;
-    btnSubmit.innerText = "Mengirim Jawaban...";
+    const btn = document.getElementById("btnSubmit");
+    btn.disabled = true;
+    btn.innerText = "Mengirim...";
 
-    fetch(GAS_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    })
-    .then(() => {
-      alert("Jawaban berhasil dikirim!");
-      location.reload();
-    })
-    .catch(err => {
-      alert("Gagal mengirim jawaban: " + err);
-      btnSubmit.disabled = false;
-      btnSubmit.innerText = "Kirim Jawaban";
-    });
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
+      const result = await res.json();
+
+      if (result.status === "success") {
+        document.getElementById("stepForm").classList.add("hidden");
+        document.getElementById("stepDone").classList.remove("hidden");
+      } else {
+        showAlert("Gagal menyimpan: " + result.message);
+        btn.disabled = false;
+        btn.innerText = "Kirim Jawaban";
+      }
+    } catch (err) {
+      showAlert("Terjadi kesalahan jaringan/server!");
+      btn.disabled = false;
+      btn.innerText = "Kirim Jawaban";
+    }
   }
 </script>
 
