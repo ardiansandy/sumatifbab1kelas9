@@ -170,8 +170,8 @@
       <label>Pilih Kategori Ujian</label>
       <select id="selectKategori" onchange="renderSoal()">
         <option value="">-- Pilih --</option>
-        <option value="bab1">Penilaian Sumatif BAB 1</option>
-        <option value="sts">Sumatif Tengah Semester</option>
+        <option value="bab1">LKS Penilaian Sumatif Bab 1 Manusia dan Perubahan</option>
+        <option value="sts">LKS PSTS Bab 1 Manusia dan Perubahan</option>
       </select>
     </div>
 
@@ -386,7 +386,11 @@
     if (!kat) return showAlert("Pilih kategori terlebih dahulu!");
 
     const nilaiFinal = hitungNilai(kat);
-    const labelKategori = (kat === "bab1") ? "Penilaian sumatif BAB 1" : "Sumatif tengah semester";
+    
+    // PEMBARUAN NAMA JUDUL / KATEGORI Sesuai Permintaan
+    const labelKategori = (kat === "bab1") 
+      ? "LKS Penilaian Sumatif Bab 1 Manusia dan Perubahan" 
+      : "LKS PSTS Bab 1 Manusia dan Perubahan";
 
     const payload = {
       idMurid: activeUser.kode,
