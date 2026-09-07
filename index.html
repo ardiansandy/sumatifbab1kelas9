@@ -12,15 +12,16 @@
     .petunjuk { background: #eef5ff; border-left: 4px solid #1e3c72; padding: 12px; font-size: 14px; margin-bottom: 20px; border-radius: 4px; }
     .form-group { margin-bottom: 15px; }
     label { font-weight: bold; display: block; margin-bottom: 5px; }
-    input[type="text"], select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+    input[type="text"], input[type="date"], select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
     .soal-card { background: #fafafa; border: 1px solid #e0e0e0; padding: 12px; border-radius: 8px; margin-bottom: 12px; }
     .soal-title { font-weight: bold; margin-bottom: 8px; color: #444; }
     .options-row { display: flex; gap: 10px; }
     .options-row label { font-weight: normal; cursor: pointer; }
-    .btn-submit { width: 100%; background: #1e3c72; color: #fff; padding: 14px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+    .btn-submit { width: 100%; background: #1e3c72; color: #fff; padding: 12px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
     .btn-submit:hover { background: #162b52; }
     .btn-submit:disabled { background: #888; cursor: not-allowed; }
     .hidden { display: none; }
+    .user-card { background: #e8f4ea; border: 1px solid #2e7d32; padding: 12px; border-radius: 8px; margin-bottom: 15px; }
   </style>
 </head>
 <body>
@@ -29,56 +30,69 @@
   <h2>Penilaian Sumatif IPS Kelas 9</h2>
   <p style="text-align: center; color: #666; margin-top: 0;">Tahun Pelajaran 2026/2027</p>
 
-  <div class="petunjuk">
-    <strong>Petunjuk Pengerjaan:</strong><br>
-    Lihat soal di LKS halaman 55 untuk <em>Penilaian Sumatif Bab 1</em> dan halaman 62 untuk <em>Sumatif Tengah Semester</em>. Kerjakan dahulu di buku, lalu inputkan jawabanmu pada form di bawah ini.
+  <!-- FORM LOGIN MURID -->
+  <div id="loginSection">
+    <div class="petunjuk">
+      <strong>Login Murid:</strong><br>
+      Masukkan Nama Lengkap dan Tanggal Lahir sesuai data registrasi untuk mulai mengisi jawaban.
+    </div>
+
+    <div class="form-group">
+      <label>Nama Lengkap</label>
+      <input type="text" id="loginNama" placeholder="Ketik nama lengkap..." required>
+    </div>
+
+    <div class="form-group">
+      <label>Tanggal Lahir</label>
+      <input type="date" id="loginTglLahir" required>
+    </div>
+
+    <button type="button" id="btnLogin" class="btn-submit" onclick="prosesLogin()">Masuk Kebijakan Ujian</button>
   </div>
 
-  <form id="formJawaban">
-    <!-- Identitas Murid -->
-    <div class="form-group">
-      <label>ID / NIS Murid</label>
-      <input type="text" id="idMurid" placeholder="Contoh: 9A01" required>
-    </div>
-    
-    <div class="form-group">
-      <label>Kelas</label>
-      <select id="kelas" required>
-        <option value="">-- Pilih Kelas --</option>
-        <option value="9A">9A</option>
-        <option value="9B">9B</option>
-        <option value="9C">9C</option>
-      </select>
+  <!-- LEMBAR TUGAS (MUNCUL SETELAH LOGIN SUCCESS) -->
+  <div id="examSection" class="hidden">
+    <div class="user-card">
+      📌 <strong>Identitas Murid:</strong><br>
+      Nama: <span id="dispNama">-</span> | Kelas: <span id="dispKelas">-</span> | NIS: <span id="dispId">-</span>
     </div>
 
-    <div class="form-group">
-      <label>Pilih Tugas / Ujian</label>
-      <select id="paket" onchange="generateForm()" required>
-        <option value="">-- Pilih Paket Ujian --</option>
-        <option value="bab1">Penilaian Sumatif BAB 1 (LKS Hal 55)</option>
-        <option value="pts">Sumatif Tengah Semester (LKS Hal 62)</option>
-      </select>
+    <div class="petunjuk">
+      <strong>Petunjuk Pengerjaan:</strong><br>
+      Lihat soal di LKS halaman 55 untuk <em>Penilaian Sumatif Bab 1</em> dan halaman 62 untuk <em>Sumatif Tengah Semester</em>.
     </div>
 
-    <!-- Container Lembar Jawaban -->
-    <div id="lembarJawaban" class="hidden">
-      <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ccc;">
-      <h3>Pilihan Ganda</h3>
-      <div id="containerPG"></div>
+    <form id="formJawaban">
+      <div class="form-group">
+        <label>Pilih Tugas / Ujian</label>
+        <select id="paket" onchange="generateForm()" required>
+          <option value="">-- Pilih Paket Ujian --</option>
+          <option value="bab1">Penilaian Sumatif BAB 1 (LKS Hal 55)</option>
+          <option value="pts">Sumatif Tengah Semester (LKS Hal 62)</option>
+        </select>
+      </div>
 
-      <h3>Pilihan Ganda Kompleks</h3>
-      <div id="containerPGK"></div>
+      <!-- Container Lembar Jawaban -->
+      <div id="lembarJawaban" class="hidden">
+        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ccc;">
+        <h3>Pilihan Ganda</h3>
+        <div id="containerPG"></div>
 
-      <button type="button" id="btnSubmit" class="btn-submit" onclick="kirimJawaban()">Kirim Jawaban</button>
-    </div>
-  </form>
+        <h3>Pilihan Ganda Kompleks</h3>
+        <div id="containerPGK"></div>
+
+        <button type="button" id="btnSubmit" class="btn-submit" onclick="kirimJawaban()">Kirim Jawaban</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <script>
-  // URL Web App Google Apps Script kamu (Ganti link di bawah ini dengan Web App URL milikmu)
+  // Paste Web App URL milikmu di sini
   const GAS_URL = "https://script.google.com/macros/s/AKfycbzf0cTV9hR2g774ExSooOQOVuLb-tJ3AyOS1tNEimbAREHm4lc0HnrpKlgk2wMgLnPQEg/exec";
 
-  // Struktur Config Soal
+  let currentMurid = null; // Menyimpan data login murid
+
   const CONFIG = {
     "bab1": {
       totalPG: 30,
@@ -112,6 +126,44 @@
     }
   };
 
+  function prosesLogin() {
+    const nama = document.getElementById("loginNama").value.trim();
+    const tglLahir = document.getElementById("loginTglLahir").value;
+    const btnLogin = document.getElementById("btnLogin");
+
+    if (!nama || !tglLahir) {
+      alert("Isi Nama Lengkap dan Tanggal Lahir terlebih dahulu!");
+      return;
+    }
+
+    btnLogin.disabled = true;
+    btnLogin.innerText = "Memeriksa Data...";
+
+    // Minta data verifikasi ke Apps Script
+    fetch(`${GAS_URL}?action=loginMurid&nama=${encodeURIComponent(nama)}&tglLahir=${encodeURIComponent(tglLahir)}`)
+      .then(res => res.json())
+      .then(res => {
+        if (res.status === "success") {
+          currentMurid = res.data;
+          document.getElementById("dispNama").innerText = currentMurid.nama;
+          document.getElementById("dispKelas").innerText = currentMurid.kelas;
+          document.getElementById("dispId").innerText = currentMurid.idMurid;
+
+          document.getElementById("loginSection").classList.add("hidden");
+          document.getElementById("examSection").classList.remove("hidden");
+        } else {
+          alert(res.message);
+          btnLogin.disabled = false;
+          btnLogin.innerText = "Masuk Kebijakan Ujian";
+        }
+      })
+      .catch(err => {
+        alert("Gagal menghubungkan ke server: " + err);
+        btnLogin.disabled = false;
+        btnLogin.innerText = "Masuk Kebijakan Ujian";
+      });
+  }
+
   function generateForm() {
     const paket = document.getElementById("paket").value;
     const containerPG = document.getElementById("containerPG");
@@ -129,7 +181,6 @@
     lembarJawaban.classList.remove("hidden");
     const cfg = CONFIG[paket];
 
-    // Generate Input PG
     for (let i = 1; i <= cfg.totalPG; i++) {
       let div = document.createElement("div");
       div.className = "soal-card";
@@ -144,12 +195,10 @@
       containerPG.appendChild(div);
     }
 
-    // Generate Input PG Kompleks
     cfg.pgK.forEach((item, idx) => {
       let noSoal = idx + 1;
       let div = document.createElement("div");
       div.className = "soal-card";
-      
       let html = `<div class="soal-title">Soal PG Kompleks No. ${noSoal}</div>`;
 
       if (item.type === "checkbox") {
@@ -176,17 +225,10 @@
 
   function kirimJawaban() {
     const paket = document.getElementById("paket").value;
-    const idMurid = document.getElementById("idMurid").value.trim();
-    const kelas = document.getElementById("kelas").value;
     const btnSubmit = document.getElementById("btnSubmit");
 
-    if (!idMurid || !kelas || !paket) {
-      alert("Harap lengkapi ID Murid, Kelas, dan Ujian!");
-      return;
-    }
-
-    if (GAS_URL === "PASTE_WEB_APP_URL_GAS_KAMU_DI_SINI" || !GAS_URL) {
-      alert("URL Backend Google Apps Script belum diatur pada variabel GAS_URL!");
+    if (!paket) {
+      alert("Harap pilih paket ujian!");
       return;
     }
 
@@ -194,13 +236,11 @@
     let jawabanPG = [];
     let jawabanPGK = [];
 
-    // Ambil Data PG
     for (let i = 1; i <= cfg.totalPG; i++) {
       let selected = document.querySelector(`input[name="pg_${i}"]:checked`);
       jawabanPG.push(selected ? selected.value : "");
     }
 
-    // Ambil Data PGK
     cfg.pgK.forEach((item, idx) => {
       let noSoal = idx + 1;
       if (item.type === "checkbox") {
@@ -217,18 +257,16 @@
     });
 
     const payload = {
-      idMurid: idMurid,
-      kelas: kelas,
+      idMurid: currentMurid.idMurid,
+      kelas: currentMurid.kelas,
       paket: paket,
       jawabanPG: jawabanPG,
       jawabanPGK: jawabanPGK
     };
 
-    // Ubah status tombol agar tidak tertekan ganda
     btnSubmit.disabled = true;
     btnSubmit.innerText = "Mengirim Jawaban...";
 
-    // Kirim data ke Google Apps Script via Fetch API
     fetch(GAS_URL, {
       method: "POST",
       mode: "no-cors",
@@ -236,11 +274,11 @@
       body: JSON.stringify(payload)
     })
     .then(() => {
-      alert("Jawaban berhasil dikirim! Nilai kamu otomatis diproses dan dicatat.");
+      alert("Jawaban berhasil dikirim! Nilai kamu otomatis dicatat.");
       location.reload();
     })
     .catch(err => {
-      alert("Terjadi kesalahan saat mengirim jawaban: " + err);
+      alert("Gagal mengirim jawaban: " + err);
       btnSubmit.disabled = false;
       btnSubmit.innerText = "Kirim Jawaban";
     });
