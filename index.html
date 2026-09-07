@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Input Jawaban Sumatif IPS</title>
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #f4f6f9; margin: 0; padding: 15px; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    h2, h3 { color: #1e3c72; text-align: center; margin-bottom: 5px; }
+    .petunjuk { background: #eef5ff; border-left: 4px solid #1e3c72; padding: 12px; font-size: 14px; margin-bottom: 20px; border-radius: 4px; }
+    .form-group { margin-bottom: 15px; }
+    label { font-weight: bold; display: block; margin-bottom: 5px; }
+    input[type="text"], select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+    .soal-card { background: #fafafa; border: 1px solid #e0e0e0; padding: 12px; border-radius: 8px; margin-bottom: 12px; }
+    .soal-title { font-weight: bold; margin-bottom: 8px; color: #444; }
+    .options-row { display: flex; gap: 10px; }
+    .options-row label { font-weight: normal; cursor: pointer; }
+    .btn-submit { width: 100%; background: #1e3c72; color: #fff; padding: 14px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+    .btn-submit:hover { background: #162b52; }
+    .btn-submit:disabled { background: #888; cursor: not-allowed; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Penilaian Sumatif IPS Kelas 9</h2>
+  <p style="text-align: center; color: #666; margin-top: 0;">Tahun Pelajaran 2026/2027</p>
+
+  <div class="petunjuk">
+    <strong>Petunjuk Pengerjaan:</strong><br>
+    Lihat soal di LKS halaman 55 untuk <em>Penilaian Sumatif Bab 1</em> dan halaman 62 untuk <em>Sumatif Tengah Semester</em>. Kerjakan dahulu di buku, lalu inputkan jawabanmu pada form di bawah ini.
+  </div>
+
+  <form id="formJawaban">
+    <!-- Identitas Murid -->
+    <div class="form-group">
+      <label>ID / NIS Murid</label>
+      <input type="text" id="idMurid" placeholder="Contoh: 9A01" required>
+    </div>
+    
+    <div class="form-group">
+      <label>Kelas</label>
+      <select id="kelas" required>
+        <option value="">-- Pilih Kelas --</option>
+        <option value="9A">9A</option>
+        <option value="9B">9B</option>
+        <option value="9C">9C</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Pilih Tugas / Ujian</label>
+      <select id="paket" onchange="generateForm()" required>
+        <option value="">-- Pilih Paket Ujian --</option>
+        <option value="bab1">Penilaian Sumatif BAB 1 (LKS Hal 55)</option>
+        <option value="pts">Sumatif Tengah Semester (LKS Hal 62)</option>
+      </select>
+    </div>
+
+    <!-- Container Lembar Jawaban -->
+    <div id="lembarJawaban" class="hidden">
+      <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ccc;">
+      <h3>Pilihan Ganda</h3>
+      <div id="containerPG"></div>
+
+      <h3>Pilihan Ganda Kompleks</h3>
+      <div id="containerPGK"></div>
+
+      <button type="button" id="btnSubmit" class="btn-submit" onclick="kirimJawaban()">Kirim Jawaban</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  // URL Web App Google Apps Script kamu (Ganti link di bawah ini dengan Web App URL milikmu)
+  const GAS_URL = "PASTE_WEB_APP_URL_GAS_KAMU_DI_SINI";
+
+  // Struktur Config Soal
+  const CONFIG = {
+    "bab1": {
+      totalPG: 30,
+      pgK: [
+        { type: "checkbox", options: ["A","B","C","D"] },
+        { type: "tf", labels: ["Pernyataan 1", "Pernyataan 2", "Pernyataan 3", "Pernyataan 4"], options: ["Salah","Benar"] },
+        { type: "checkbox", options: ["A","B","C","D"] },
+        { type: "tf", labels: ["Pernyataan 1", "Pernyataan 2", "Pernyataan 3", "Pernyataan 4"], options: ["Sesuai","Tidak Sesuai"] },
+        { type: "checkbox", options: ["A","B","C","D"] },
+        { type: "tf", labels: ["Pernyataan 1", "Pernyataan 2", "Pernyataan 3", "Pernyataan 4"], options: ["Sesuai","Tidak Sesuai"] },
+        { type: "tf", labels: ["Pernyataan 1", "Pernyataan 2", "Pernyataan 3", "Pernyataan 4"], options: ["Salah","Benar"] },
+        { type: "checkbox", options: ["A","B","C","D"] },
+        { type: "checkbox", options: ["A","B","C","D"] },
+        { type: "tf", labels: ["Pernyataan 1", "Pernyataan 2", "Pernyataan 3", "Pernyataan 4"], options: ["Salah","Benar"] }
+      ]
+    },
+    "pts": {
+      totalPG: 35,
+      pgK: [
+        { type: "checkbox", options: ["A","B","C","D"] },
+        { type: "tf", labels: ["Pernyataan 1", "Pernyataan 2", "Pernyataan 3", "Pernyataan 4"], options: ["Benar","Salah"] },
+        { type: "checkbox", options: ["A","B","C","D"] },
+        { type: "checkbox", options: ["A","B","C","D"] },
+        { type: "tf", labels: ["Pernyataan 1", "Pernyataan 2", "Pernyataan 3", "Pernyataan 4"], options: ["Sesuai","Tidak Sesuai"] },
+        { type: "checkbox", options: ["A","B","C","D"] },
+        { type: "checkbox", options: ["A","B","C","D"] },
+        { type: "tf", labels: ["Pernyataan 1", "Pernyataan 2", "Pernyataan 3", "Pernyataan 4"], options: ["Salah","Benar"] },
+        { type: "checkbox", options: ["A","B","C","D"] },
+        { type: "checkbox", options: ["A","B","C","D"] }
+      ]
+    }
+  };
+
+  function generateForm() {
+    const paket = document.getElementById("paket").value;
+    const containerPG = document.getElementById("containerPG");
+    const containerPGK = document.getElementById("containerPGK");
+    const lembarJawaban = document.getElementById("lembarJawaban");
+
+    containerPG.innerHTML = "";
+    containerPGK.innerHTML = "";
+
+    if (!paket) {
+      lembarJawaban.classList.add("hidden");
+      return;
+    }
+
+    lembarJawaban.classList.remove("hidden");
+    const cfg = CONFIG[paket];
+
+    // Generate Input PG
+    for (let i = 1; i <= cfg.totalPG; i++) {
+      let div = document.createElement("div");
+      div.className = "soal-card";
+      div.innerHTML = `
+        <div class="soal-title">Soal PG No. ${i}</div>
+        <div class="options-row">
+          ${['A','B','C','D'].map(opt => `
+            <label><input type="radio" name="pg_${i}" value="${opt}"> ${opt}</label>
+          `).join('')}
+        </div>
+      `;
+      containerPG.appendChild(div);
+    }
+
+    // Generate Input PG Kompleks
+    cfg.pgK.forEach((item, idx) => {
+      let noSoal = idx + 1;
+      let div = document.createElement("div");
+      div.className = "soal-card";
+      
+      let html = `<div class="soal-title">Soal PG Kompleks No. ${noSoal}</div>`;
+
+      if (item.type === "checkbox") {
+        html += `<div class="options-row">
+          ${item.options.map(opt => `
+            <label><input type="checkbox" name="pgk_${noSoal}" value="${opt}"> ${opt}</label>
+          `).join('')}
+        </div>`;
+      } else if (item.type === "tf") {
+        html += item.labels.map((lbl, lIdx) => `
+          <div style="margin-bottom: 8px; font-size: 13px;">
+            <span>${lbl}: </span>
+            ${item.options.map(opt => `
+              <label style="margin-right: 10px;"><input type="radio" name="pgk_${noSoal}_sub_${lIdx}" value="${opt}"> ${opt}</label>
+            `).join('')}
+          </div>
+        `).join('');
+      }
+
+      div.innerHTML = html;
+      containerPGK.appendChild(div);
+    });
+  }
+
+  function kirimJawaban() {
+    const paket = document.getElementById("paket").value;
+    const idMurid = document.getElementById("idMurid").value.trim();
+    const kelas = document.getElementById("kelas").value;
+    const btnSubmit = document.getElementById("btnSubmit");
+
+    if (!idMurid || !kelas || !paket) {
+      alert("Harap lengkapi ID Murid, Kelas, dan Ujian!");
+      return;
+    }
+
+    if (GAS_URL === "PASTE_WEB_APP_URL_GAS_KAMU_DI_SINI" || !GAS_URL) {
+      alert("URL Backend Google Apps Script belum diatur pada variabel GAS_URL!");
+      return;
+    }
+
+    const cfg = CONFIG[paket];
+    let jawabanPG = [];
+    let jawabanPGK = [];
+
+    // Ambil Data PG
+    for (let i = 1; i <= cfg.totalPG; i++) {
+      let selected = document.querySelector(`input[name="pg_${i}"]:checked`);
+      jawabanPG.push(selected ? selected.value : "");
+    }
+
+    // Ambil Data PGK
+    cfg.pgK.forEach((item, idx) => {
+      let noSoal = idx + 1;
+      if (item.type === "checkbox") {
+        let selected = Array.from(document.querySelectorAll(`input[name="pgk_${noSoal}"]:checked`)).map(el => el.value);
+        jawabanPGK.push(selected);
+      } else if (item.type === "tf") {
+        let subRes = [];
+        item.labels.forEach((_, lIdx) => {
+          let selected = document.querySelector(`input[name="pgk_${noSoal}_sub_${lIdx}"]:checked`);
+          if (selected) subRes.push(selected.value);
+        });
+        jawabanPGK.push(subRes);
+      }
+    });
+
+    const payload = {
+      idMurid: idMurid,
+      kelas: kelas,
+      paket: paket,
+      jawabanPG: jawabanPG,
+      jawabanPGK: jawabanPGK
+    };
+
+    // Ubah status tombol agar tidak tertekan ganda
+    btnSubmit.disabled = true;
+    btnSubmit.innerText = "Mengirim Jawaban...";
+
+    // Kirim data ke Google Apps Script via Fetch API
+    fetch(GAS_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+    .then(() => {
+      alert("Jawaban berhasil dikirim! Nilai kamu otomatis diproses dan dicatat.");
+      location.reload();
+    })
+    .catch(err => {
+      alert("Terjadi kesalahan saat mengirim jawaban: " + err);
+      btnSubmit.disabled = false;
+      btnSubmit.innerText = "Kirim Jawaban";
+    });
+  }
+</script>
+
+</body>
+</html>
