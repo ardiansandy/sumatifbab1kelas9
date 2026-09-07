@@ -30,7 +30,7 @@
   <h2>Penilaian Sumatif IPS Kelas 9</h2>
   <p style="text-align: center; color: #666; margin-top: 0;">Tahun Pelajaran 2026/2027</p>
 
-  <!-- KOTAK LOGIN -->
+  <!-- BOX LOGIN -->
   <div id="loginSection">
     <div class="petunjuk">
       <strong>Login Murid:</strong><br>
@@ -39,18 +39,18 @@
 
     <div class="form-group">
       <label>Nama Lengkap</label>
-      <input type="text" id="loginNama" placeholder="Contoh: Budi Santoso">
+      <input type="text" id="inputNamaUser" placeholder="Contoh: Budi Santoso" autocomplete="off">
     </div>
 
     <div class="form-group">
       <label>Password (Tanggal Lahir)</label>
-      <input type="password" id="loginPassword" placeholder="Contoh: 15101989" maxlength="8">
+      <input type="password" id="inputPassUser" placeholder="Contoh: 15101989" maxlength="8">
     </div>
 
-    <button type="button" id="btnLogin" class="btn-submit" onclick="prosesLogin()">Input Jawaban</button>
+    <button type="button" id="btnLogin" class="btn-submit">Masuk Kebijakan Ujian</button>
   </div>
 
-  <!-- KOTAK UJIAN -->
+  <!-- BOX UJIAN -->
   <div id="examSection" class="hidden">
     <div class="user-card">
       📌 <strong>Identitas Murid:</strong><br>
@@ -62,28 +62,25 @@
       Lihat soal di LKS halaman 55 untuk <em>Penilaian Sumatif Bab 1</em> dan halaman 62 untuk <em>Sumatif Tengah Semester</em>.
     </div>
 
-    <form id="formJawaban" onsubmit="return false;">
-      <div class="form-group">
-        <label>Pilih Tugas / Ujian</label>
-        <select id="paket" onchange="generateForm()">
-          <option value="">-- Pilih Paket Ujian --</option>
-          <option value="bab1">Penilaian Sumatif BAB 1 (LKS Hal 55)</option>
-          <option value="pts">Sumatif Tengah Semester (LKS Hal 62)</option>
-        </select>
-      </div>
+    <div class="form-group">
+      <label>Pilih Tugas / Ujian</label>
+      <select id="paket" onchange="generateForm()">
+        <option value="">-- Pilih Paket Ujian --</option>
+        <option value="bab1">Penilaian Sumatif BAB 1 (LKS Hal 55)</option>
+        <option value="pts">Sumatif Tengah Semester (LKS Hal 62)</option>
+      </select>
+    </div>
 
-      <!-- Container Lembar Jawaban -->
-      <div id="lembarJawaban" class="hidden">
-        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ccc;">
-        <h3>Pilihan Ganda</h3>
-        <div id="containerPG"></div>
+    <div id="lembarJawaban" class="hidden">
+      <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ccc;">
+      <h3>Pilihan Ganda</h3>
+      <div id="containerPG"></div>
 
-        <h3>Pilihan Ganda Kompleks</h3>
-        <div id="containerPGK"></div>
+      <h3>Pilihan Ganda Kompleks</h3>
+      <div id="containerPGK"></div>
 
-        <button type="button" id="btnSubmit" class="btn-submit" onclick="kirimJawaban()">Kirim Jawaban</button>
-      </div>
-    </form>
+      <button type="button" id="btnSubmit" class="btn-submit" onclick="kirimJawaban()">Kirim Jawaban</button>
+    </div>
   </div>
 </div>
 
@@ -92,6 +89,58 @@
   const GAS_URL = "https://script.google.com/macros/s/AKfycbzf0cTV9hR2g774ExSooOQOVuLb-tJ3AyOS1tNEimbAREHm4lc0HnrpKlgk2wMgLnPQEg/exec";
 
   let currentMurid = null;
+
+  // EVENT LISTENER UNTUK TOMBOL LOGIN (Lebih stabil dari onclick biasa)
+  document.addEventListener("DOMContentLoaded", function() {
+    const btnLogin = document.getElementById("btnLogin");
+    if(btnLogin) {
+      btnLogin.addEventListener("click", prosesLogin);
+    }
+  });
+
+  function prosesLogin() {
+    const namaInput = document.getElementById("inputNamaUser");
+    const passInput = document.getElementById("inputPassUser");
+    const btnLogin = document.getElementById("btnLogin");
+
+    const nama = namaInput ? namaInput.value.trim() : "";
+    const pass = passInput ? passInput.value.trim() : "";
+
+    // Pengecekan data
+    if (nama === "" || pass === "") {
+      alert("Nama Lengkap dan Password belum diisi!");
+      return;
+    }
+
+    btnLogin.disabled = true;
+    btnLogin.innerText = "Memeriksa Data...";
+
+    // Kirim request ke GAS
+    const targetUrl = `${GAS_URL}?action=loginMurid&nama=${encodeURIComponent(nama)}&tglLahir=${encodeURIComponent(pass)}`;
+
+    fetch(targetUrl)
+      .then(res => res.json())
+      .then(res => {
+        if (res.status === "success") {
+          currentMurid = res.data;
+          document.getElementById("dispNama").innerText = currentMurid.nama;
+          document.getElementById("dispKelas").innerText = currentMurid.kelas;
+          document.getElementById("dispId").innerText = currentMurid.idMurid;
+
+          document.getElementById("loginSection").classList.add("hidden");
+          document.getElementById("examSection").classList.remove("hidden");
+        } else {
+          alert(res.message);
+          btnLogin.disabled = false;
+          btnLogin.innerText = "Masuk Kebijakan Ujian";
+        }
+      })
+      .catch(err => {
+        alert("Gagal terhubung ke Apps Script: " + err);
+        btnLogin.disabled = false;
+        btnLogin.innerText = "Masuk Kebijakan Ujian";
+      });
+  }
 
   const CONFIG = {
     "bab1": {
@@ -125,46 +174,6 @@
       ]
     }
   };
-
-  function prosesLogin() {
-    const inputNama = document.getElementById("loginNama");
-    const inputPass = document.getElementById("loginPassword");
-    const btnLogin = document.getElementById("btnLogin");
-
-    const nama = inputNama ? inputNama.value.trim() : "";
-    const pass = inputPass ? inputPass.value.trim() : "";
-
-    if (!nama || !pass) {
-      alert("Nama Lengkap dan Password harus diisi!");
-      return;
-    }
-
-    btnLogin.disabled = true;
-    btnLogin.innerText = "Memeriksa Data...";
-
-    fetch(`${GAS_URL}?action=loginMurid&nama=${encodeURIComponent(nama)}&tglLahir=${encodeURIComponent(pass)}`)
-      .then(res => res.json())
-      .then(res => {
-        if (res.status === "success") {
-          currentMurid = res.data;
-          document.getElementById("dispNama").innerText = currentMurid.nama;
-          document.getElementById("dispKelas").innerText = currentMurid.kelas;
-          document.getElementById("dispId").innerText = currentMurid.idMurid;
-
-          document.getElementById("loginSection").classList.add("hidden");
-          document.getElementById("examSection").classList.remove("hidden");
-        } else {
-          alert(res.message);
-          btnLogin.disabled = false;
-          btnLogin.innerText = "Masuk Kebijakan Ujian";
-        }
-      })
-      .catch(err => {
-        alert("Gagal koneksi ke server Apps Script: " + err);
-        btnLogin.disabled = false;
-        btnLogin.innerText = "Masuk Kebijakan Ujian";
-      });
-  }
 
   function generateForm() {
     const paket = document.getElementById("paket").value;
