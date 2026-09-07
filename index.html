@@ -127,42 +127,56 @@
   };
 
   function prosesLogin() {
-    const nama = document.getElementById("loginNama").value.trim();
-    const tglLahir = document.getElementById("loginTglLahir").value;
-    const btnLogin = document.getElementById("btnLogin");
+  // Ambil elemen input
+  const elNama = document.getElementById("loginNama");
+  const elPass = document.getElementById("loginTglLahir"); // Sesuaikan ID ini dengan ID di tag <input> kamu
 
-    if (!nama || !tglLahir) {
-      alert("Isi Nama Lengkap dan Tanggal Lahir terlebih dahulu!");
-      return;
-    }
+  // Ambil nilai dan bersihkan spasi
+  const nama = elNama ? elNama.value.trim() : "";
+  const pass = elPass ? elPass.value.trim() : "";
+  const btnLogin = document.getElementById("btnLogin");
 
-    btnLogin.disabled = true;
-    btnLogin.innerText = "Memeriksa Data...";
+  // Validasi Input Kosong
+  if (!nama || !pass) {
+    alert("Nama Lengkap dan Password harus diisi!");
+    return;
+  }
 
-    // Minta data verifikasi ke Apps Script
-    fetch(`${GAS_URL}?action=loginMurid&nama=${encodeURIComponent(nama)}&tglLahir=${encodeURIComponent(tglLahir)}`)
-      .then(res => res.json())
-      .then(res => {
-        if (res.status === "success") {
-          currentMurid = res.data;
-          document.getElementById("dispNama").innerText = currentMurid.nama;
-          document.getElementById("dispKelas").innerText = currentMurid.kelas;
-          document.getElementById("dispId").innerText = currentMurid.idMurid;
+  // Hapus karakter non-angka jika ada yang tak sengaja mengetik garis miring / spasi
+  const cleanPass = pass.replace(/[^0-9]/g, "");
 
-          document.getElementById("loginSection").classList.add("hidden");
-          document.getElementById("examSection").classList.remove("hidden");
-        } else {
-          alert(res.message);
-          btnLogin.disabled = false;
-          btnLogin.innerText = "Masuk Kebijakan Ujian";
-        }
-      })
-      .catch(err => {
-        alert("Gagal menghubungkan ke server: " + err);
+  if (cleanPass.length !== 8) {
+    alert("Password harus berupa 8 digit angka tanggal lahir!\nContoh: 15101989");
+    return;
+  }
+
+  btnLogin.disabled = true;
+  btnLogin.innerText = "Memeriksa Data...";
+
+  // Kirim request ke Google Apps Script
+  fetch(`${GAS_URL}?action=loginMurid&nama=${encodeURIComponent(nama)}&tglLahir=${encodeURIComponent(cleanPass)}`)
+    .then(res => res.json())
+    .then(res => {
+      if (res.status === "success") {
+        currentMurid = res.data;
+        document.getElementById("dispNama").innerText = currentMurid.nama;
+        document.getElementById("dispKelas").innerText = currentMurid.kelas;
+        document.getElementById("dispId").innerText = currentMurid.idMurid;
+
+        document.getElementById("loginSection").classList.add("hidden");
+        document.getElementById("examSection").classList.remove("hidden");
+      } else {
+        alert(res.message);
         btnLogin.disabled = false;
         btnLogin.innerText = "Masuk Kebijakan Ujian";
-      });
-  }
+      }
+    })
+    .catch(err => {
+      alert("Gagal menghubungkan ke server: " + err);
+      btnLogin.disabled = false;
+      btnLogin.innerText = "Masuk Kebijakan Ujian";
+    });
+}
 
   function generateForm() {
     const paket = document.getElementById("paket").value;
