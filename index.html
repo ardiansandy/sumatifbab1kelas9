@@ -5,23 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Input Jawaban Sumatif IPS</title>
   <style>
-    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
     body { background-color: #f4f6f9; margin: 0; padding: 15px; color: #333; }
     .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     h2, h3 { color: #1e3c72; text-align: center; margin-bottom: 5px; }
     .petunjuk { background: #eef5ff; border-left: 4px solid #1e3c72; padding: 12px; font-size: 14px; margin-bottom: 20px; border-radius: 4px; }
     .form-group { margin-bottom: 15px; }
     label { font-weight: bold; display: block; margin-bottom: 5px; }
-    input[type="text"], input[type="password"], select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+    select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
     .soal-card { background: #fafafa; border: 1px solid #e0e0e0; padding: 12px; border-radius: 8px; margin-bottom: 12px; }
     .soal-title { font-weight: bold; margin-bottom: 8px; color: #444; }
     .options-row { display: flex; gap: 10px; }
-    .options-row label { font-weight: normal; cursor: pointer; }
     .btn-submit { width: 100%; background: #1e3c72; color: #fff; padding: 12px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-    .btn-submit:hover { background: #162b52; }
     .btn-submit:disabled { background: #888; cursor: not-allowed; }
     .hidden { display: none; }
     .user-card { background: #e8f4ea; border: 1px solid #2e7d32; padding: 12px; border-radius: 8px; margin-bottom: 15px; }
+    .error-card { background: #ffebee; border: 1px solid #c62828; color: #c62828; padding: 15px; border-radius: 8px; text-align: center; }
   </style>
 </head>
 <body>
@@ -30,31 +29,17 @@
   <h2>Penilaian Sumatif IPS Kelas 9</h2>
   <p style="text-align: center; color: #666; margin-top: 0;">Tahun Pelajaran 2026/2027</p>
 
-  <!-- BOX LOGIN -->
-  <div id="loginSection">
-    <div class="petunjuk">
-      <strong>Login Murid:</strong><br>
-      Masukkan Nama Lengkap dan Password (Tanggal Lahir format DDMMYYYY).
-    </div>
-
-    <div class="form-group">
-      <label>Nama Lengkap</label>
-      <input type="text" id="inputNamaUser" placeholder="Contoh: Budi Santoso" autocomplete="off">
-    </div>
-
-    <div class="form-group">
-      <label>Password (Tanggal Lahir)</label>
-      <input type="password" id="inputPassUser" placeholder="Contoh: 15101989" maxlength="8">
-    </div>
-
-    <button type="button" id="btnLogin" class="btn-submit">Masuk Kebijakan Ujian</button>
+  <!-- PEMBERITAHUAN JIKA BELUM LOGIN DI WEB UTAMA -->
+  <div id="noAuthBox" class="error-card hidden">
+    ⚠️ <strong>Sesi Login Tidak Ditemukan!</strong><br><br>
+    Kamu belum login di Aplikasi Utama. Silakan kembali dan login terlebih dahulu di Web IPS.
   </div>
 
-  <!-- BOX UJIAN -->
+  <!-- AREA UJIAN (OTOMATIS MUNCUL JIKA SUDAH LOGIN DI WEB UTAMA) -->
   <div id="examSection" class="hidden">
     <div class="user-card">
-      📌 <strong>Identitas Murid:</strong><br>
-      Nama: <span id="dispNama">-</span> | Kelas: <span id="dispKelas">-</span> | NIS: <span id="dispId">-</span>
+      📌 <strong>Identitas Murid (Otomatis):</strong><br>
+      Nama: <span id="dispNama">-</span> | Kelas: <span id="dispKelas">-</span> | ID/NIS: <span id="dispId">-</span>
     </div>
 
     <div class="petunjuk">
@@ -85,62 +70,31 @@
 </div>
 
 <script>
-  // PASTE URL WEB APP APPS SCRIPT KAMU DI SINI
   const GAS_URL = "https://script.google.com/macros/s/AKfycbzf0cTV9hR2g774ExSooOQOVuLb-tJ3AyOS1tNEimbAREHm4lc0HnrpKlgk2wMgLnPQEg/exec";
 
   let currentMurid = null;
 
-  // EVENT LISTENER UNTUK TOMBOL LOGIN (Lebih stabil dari onclick biasa)
+  // OTOMATIS BACA DATA LOGIN SAAT HALAMAN DIBUKA
   document.addEventListener("DOMContentLoaded", function() {
-    const btnLogin = document.getElementById("btnLogin");
-    if(btnLogin) {
-      btnLogin.addEventListener("click", prosesLogin);
+    const nama = localStorage.getItem("userIPS_nama");
+    const kelas = localStorage.getItem("userIPS_kelas");
+    const idMurid = localStorage.getItem("userIPS_id");
+
+    if (nama && kelas) {
+      currentMurid = { nama: nama, kelas: kelas, idMurid: idMurid || "-" };
+      
+      // Tampilkan identitas
+      document.getElementById("dispNama").innerText = currentMurid.nama;
+      document.getElementById("dispKelas").innerText = currentMurid.kelas;
+      document.getElementById("dispId").innerText = currentMurid.idMurid;
+
+      // Buka akses lembar ujian
+      document.getElementById("examSection").classList.remove("hidden");
+    } else {
+      // Tampilkan error jika belum login di web utama
+      document.getElementById("noAuthBox").classList.remove("hidden");
     }
   });
-
-  function prosesLogin() {
-    const namaInput = document.getElementById("inputNamaUser");
-    const passInput = document.getElementById("inputPassUser");
-    const btnLogin = document.getElementById("btnLogin");
-
-    const nama = namaInput ? namaInput.value.trim() : "";
-    const pass = passInput ? passInput.value.trim() : "";
-
-    // Pengecekan data
-    if (nama === "" || pass === "") {
-      alert("Nama Lengkap dan Password belum diisi!");
-      return;
-    }
-
-    btnLogin.disabled = true;
-    btnLogin.innerText = "Memeriksa Data...";
-
-    // Kirim request ke GAS
-    const targetUrl = `${GAS_URL}?action=loginMurid&nama=${encodeURIComponent(nama)}&tglLahir=${encodeURIComponent(pass)}`;
-
-    fetch(targetUrl)
-      .then(res => res.json())
-      .then(res => {
-        if (res.status === "success") {
-          currentMurid = res.data;
-          document.getElementById("dispNama").innerText = currentMurid.nama;
-          document.getElementById("dispKelas").innerText = currentMurid.kelas;
-          document.getElementById("dispId").innerText = currentMurid.idMurid;
-
-          document.getElementById("loginSection").classList.add("hidden");
-          document.getElementById("examSection").classList.remove("hidden");
-        } else {
-          alert(res.message);
-          btnLogin.disabled = false;
-          btnLogin.innerText = "Masuk Kebijakan Ujian";
-        }
-      })
-      .catch(err => {
-        alert("Gagal terhubung ke Apps Script: " + err);
-        btnLogin.disabled = false;
-        btnLogin.innerText = "Masuk Kebijakan Ujian";
-      });
-  }
 
   const CONFIG = {
     "bab1": {
@@ -285,7 +239,7 @@
       body: JSON.stringify(payload)
     })
     .then(() => {
-      alert("Jawaban berhasil dikirim! Nilai kamu otomatis dicatat.");
+      alert("Jawaban berhasil dikirim!");
       location.reload();
     })
     .catch(err => {
