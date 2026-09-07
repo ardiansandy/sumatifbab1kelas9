@@ -34,7 +34,7 @@
   <div id="loginSection">
     <div class="petunjuk">
       <strong>Login Murid:</strong><br>
-      Masukkan Nama Lengkap dan Tanggal Lahir sesuai data registrasi untuk mulai mengisi jawaban.
+      Masukkan Nama Lengkap dan Password (tanggal lahir kamu) untuk mulai mengisi jawaban.
     </div>
 
     <div class="form-group">
@@ -42,9 +42,9 @@
       <input type="text" id="loginNama" placeholder="Ketik nama lengkap..." required>
     </div>
 
-    <div class="form-group">
-      <label>Tanggal Lahir</label>
-      <input type="date" id="loginTglLahir" required>
+<div class="form-group">
+      <label>Password (Tanggal Lahir)</label>
+      <input type="password" id="loginTglLahir" placeholder="Format: DDMMYYYY (contoh: 15101989)" maxlength="8" required>
     </div>
 
     <button type="button" id="btnLogin" class="btn-submit" onclick="prosesLogin()">Masuk Kebijakan Ujian</button>
