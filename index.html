@@ -12,7 +12,7 @@
     .petunjuk { background: #eef5ff; border-left: 4px solid #1e3c72; padding: 12px; font-size: 14px; margin-bottom: 20px; border-radius: 4px; }
     .form-group { margin-bottom: 15px; }
     label { font-weight: bold; display: block; margin-bottom: 5px; }
-    input[type="text"], input[type="date"], select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+    input[type="text"], input[type="password"], select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
     .soal-card { background: #fafafa; border: 1px solid #e0e0e0; padding: 12px; border-radius: 8px; margin-bottom: 12px; }
     .soal-title { font-weight: bold; margin-bottom: 8px; color: #444; }
     .options-row { display: flex; gap: 10px; }
@@ -30,27 +30,27 @@
   <h2>Penilaian Sumatif IPS Kelas 9</h2>
   <p style="text-align: center; color: #666; margin-top: 0;">Tahun Pelajaran 2026/2027</p>
 
-  <!-- FORM LOGIN MURID -->
+  <!-- KOTAK LOGIN -->
   <div id="loginSection">
     <div class="petunjuk">
       <strong>Login Murid:</strong><br>
-      Masukkan Nama Lengkap dan Password (tanggal lahir kamu) untuk mulai mengisi jawaban.
+      Masukkan Nama Lengkap dan Password (Tanggal Lahir format DDMMYYYY).
     </div>
 
     <div class="form-group">
       <label>Nama Lengkap</label>
-      <input type="text" id="loginNama" placeholder="Ketik nama lengkap..." required>
+      <input type="text" id="loginNama" placeholder="Contoh: Budi Santoso">
     </div>
 
-<div class="form-group">
+    <div class="form-group">
       <label>Password (Tanggal Lahir)</label>
-      <input type="password" id="loginTglLahir" placeholder="Format: DDMMYYYY (contoh: 15101989)" maxlength="8" required>
+      <input type="password" id="loginPassword" placeholder="Contoh: 15101989" maxlength="8">
     </div>
 
     <button type="button" id="btnLogin" class="btn-submit" onclick="prosesLogin()">Masuk Kebijakan Ujian</button>
   </div>
 
-  <!-- LEMBAR TUGAS (MUNCUL SETELAH LOGIN SUCCESS) -->
+  <!-- KOTAK UJIAN -->
   <div id="examSection" class="hidden">
     <div class="user-card">
       📌 <strong>Identitas Murid:</strong><br>
@@ -62,10 +62,10 @@
       Lihat soal di LKS halaman 55 untuk <em>Penilaian Sumatif Bab 1</em> dan halaman 62 untuk <em>Sumatif Tengah Semester</em>.
     </div>
 
-    <form id="formJawaban">
+    <form id="formJawaban" onsubmit="return false;">
       <div class="form-group">
         <label>Pilih Tugas / Ujian</label>
-        <select id="paket" onchange="generateForm()" required>
+        <select id="paket" onchange="generateForm()">
           <option value="">-- Pilih Paket Ujian --</option>
           <option value="bab1">Penilaian Sumatif BAB 1 (LKS Hal 55)</option>
           <option value="pts">Sumatif Tengah Semester (LKS Hal 62)</option>
@@ -88,10 +88,10 @@
 </div>
 
 <script>
-  // Paste Web App URL milikmu di sini
+  // PASTE URL WEB APP APPS SCRIPT KAMU DI SINI
   const GAS_URL = "https://script.google.com/macros/s/AKfycbzf0cTV9hR2g774ExSooOQOVuLb-tJ3AyOS1tNEimbAREHm4lc0HnrpKlgk2wMgLnPQEg/exec";
 
-  let currentMurid = null; // Menyimpan data login murid
+  let currentMurid = null;
 
   const CONFIG = {
     "bab1": {
@@ -127,56 +127,44 @@
   };
 
   function prosesLogin() {
-  // Ambil elemen input
-  const elNama = document.getElementById("loginNama");
-  const elPass = document.getElementById("loginTglLahir"); // Sesuaikan ID ini dengan ID di tag <input> kamu
+    const inputNama = document.getElementById("loginNama");
+    const inputPass = document.getElementById("loginPassword");
+    const btnLogin = document.getElementById("btnLogin");
 
-  // Ambil nilai dan bersihkan spasi
-  const nama = elNama ? elNama.value.trim() : "";
-  const pass = elPass ? elPass.value.trim() : "";
-  const btnLogin = document.getElementById("btnLogin");
+    const nama = inputNama ? inputNama.value.trim() : "";
+    const pass = inputPass ? inputPass.value.trim() : "";
 
-  // Validasi Input Kosong
-  if (!nama || !pass) {
-    alert("Nama Lengkap dan Password harus diisi!");
-    return;
-  }
+    if (!nama || !pass) {
+      alert("Nama Lengkap dan Password harus diisi!");
+      return;
+    }
 
-  // Hapus karakter non-angka jika ada yang tak sengaja mengetik garis miring / spasi
-  const cleanPass = pass.replace(/[^0-9]/g, "");
+    btnLogin.disabled = true;
+    btnLogin.innerText = "Memeriksa Data...";
 
-  if (cleanPass.length !== 8) {
-    alert("Password harus berupa 8 digit angka tanggal lahir!\nContoh: 15101989");
-    return;
-  }
+    fetch(`${GAS_URL}?action=loginMurid&nama=${encodeURIComponent(nama)}&tglLahir=${encodeURIComponent(pass)}`)
+      .then(res => res.json())
+      .then(res => {
+        if (res.status === "success") {
+          currentMurid = res.data;
+          document.getElementById("dispNama").innerText = currentMurid.nama;
+          document.getElementById("dispKelas").innerText = currentMurid.kelas;
+          document.getElementById("dispId").innerText = currentMurid.idMurid;
 
-  btnLogin.disabled = true;
-  btnLogin.innerText = "Memeriksa Data...";
-
-  // Kirim request ke Google Apps Script
-  fetch(`${GAS_URL}?action=loginMurid&nama=${encodeURIComponent(nama)}&tglLahir=${encodeURIComponent(cleanPass)}`)
-    .then(res => res.json())
-    .then(res => {
-      if (res.status === "success") {
-        currentMurid = res.data;
-        document.getElementById("dispNama").innerText = currentMurid.nama;
-        document.getElementById("dispKelas").innerText = currentMurid.kelas;
-        document.getElementById("dispId").innerText = currentMurid.idMurid;
-
-        document.getElementById("loginSection").classList.add("hidden");
-        document.getElementById("examSection").classList.remove("hidden");
-      } else {
-        alert(res.message);
+          document.getElementById("loginSection").classList.add("hidden");
+          document.getElementById("examSection").classList.remove("hidden");
+        } else {
+          alert(res.message);
+          btnLogin.disabled = false;
+          btnLogin.innerText = "Masuk Kebijakan Ujian";
+        }
+      })
+      .catch(err => {
+        alert("Gagal koneksi ke server Apps Script: " + err);
         btnLogin.disabled = false;
         btnLogin.innerText = "Masuk Kebijakan Ujian";
-      }
-    })
-    .catch(err => {
-      alert("Gagal menghubungkan ke server: " + err);
-      btnLogin.disabled = false;
-      btnLogin.innerText = "Masuk Kebijakan Ujian";
-    });
-}
+      });
+  }
 
   function generateForm() {
     const paket = document.getElementById("paket").value;
